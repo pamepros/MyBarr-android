@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_name">Rdio API Example</string>
+	<string name="app_name">CheckBoxx</string>
     <string name="getting_user">Looking up current user&#8230;</string>
     <string name="getting_collection">Loading collection&#8230;</string>
     <string name="getting_heavy_rotation">Loading Rdio heavy rotation&#8230;</string>

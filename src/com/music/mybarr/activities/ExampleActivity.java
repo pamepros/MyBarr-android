@@ -39,15 +39,15 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.music.mybarr.callbacks.UserCallback;
+import com.music.mybarr.controller.ApiController;
+import com.music.mybarr.model.BeatUser;
 import com.rdio.android.api.Rdio;
 import com.rdio.android.api.RdioApiCallback;
 import com.rdio.android.api.RdioListener;
 import com.rdio.android.api.example.R;
 import com.rdio.android.api.services.RdioAuthorisationException;
 import com.rdio.android.api.OAuth1WebViewActivity;
-import com.urucas.cleeck.fragments.CommentListFragment;
-
-import android.R.bool;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -84,6 +84,8 @@ public class ExampleActivity extends Activity implements RdioListener {
 	private Queue<Track> trackQueue;
 
 	private static Rdio rdio;
+	private String username;
+	private String lastSong;
 
 	// TODO CHANGE THIS TO YOUR APPLICATION KEY AND SECRET
 	private static final String appKey = "stqzwcbxrh57y2gev6z3prpp";
@@ -120,6 +122,8 @@ public class ExampleActivity extends Activity implements RdioListener {
 
 	private Handler handler;
 
+	private ApiController api;
+
 	// Our model for the metadata for a track that we care about
 	private class Track {
 		public String key;
@@ -142,6 +146,7 @@ public class ExampleActivity extends Activity implements RdioListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
 
+		api = new ApiController();
 		barLocation.setLatitude(37.78255);
 		barLocation.setLongitude(-122.39091);
 		
@@ -189,8 +194,10 @@ public class ExampleActivity extends Activity implements RdioListener {
 		
 		//check if I'm there
 		if(!amIThere()){
-			Toast toast = Toast.makeText(getApplicationContext(), "You are not in the bar, you definetly should!", Toast.LENGTH_LONG);
+			Toast toast = Toast.makeText(getApplicationContext(), "You are not in the bar, you definetly should be!", Toast.LENGTH_LONG);
 			toast.show();
+		}else{
+			//sendMyData();
 		};
 		
 		//every 10 min
@@ -209,6 +216,31 @@ public class ExampleActivity extends Activity implements RdioListener {
 		    }
 		}, 600 * 1000 );
 	};
+	
+	private void sendMyData(){
+		api.sendMyData(username, lastSong, new UserCallback() {
+
+			@Override
+			public void onSuccess(JSONObject result) {
+				// TODO Auto-generated method stub
+				successfullySent();
+			}
+
+			@Override
+			public void onError(String message) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+	
+	private void successfullySent(){
+		//hide button and change text
+		Button usrData = (Button)findViewById(R.id.getUsrData);
+		usrData.setVisibility(View.GONE);
+		
+		usrDataTxt.setText("Enjoy the music!");
+	}
 
 	private Boolean amIThere(){
 		try{
@@ -232,16 +264,6 @@ public class ExampleActivity extends Activity implements RdioListener {
 			if(d > 200){
 				return false;
 			}else{
-				//allow user to log in and check into bar
-				Button beatsUsrData = (Button)findViewById(R.id.getBeatsUsrData);
-				beatsUsrData.setOnClickListener(new OnClickListener() {
-					
-					@Override
-					public void onClick(View v) {
-						// TODO Auto-generated method stub
-						getBeatsUserData();
-					}
-				});
 				return true;
 			}
 		}catch(Exception e){
@@ -410,6 +432,11 @@ public class ExampleActivity extends Activity implements RdioListener {
 	 * Requires authorization and the Rdio app to be installed.
 	 */
 	private void getUserData() {
+		if(!amIThere()){
+			Toast toast = Toast.makeText(getApplicationContext(), "You are not in the bar, you definetly should be!", Toast.LENGTH_LONG);
+			toast.show();
+			return;
+		}
 		if (accessToken == null || accessTokenSecret == null) {
 			doSomethingWithoutApp();
 			return;
@@ -422,17 +449,19 @@ public class ExampleActivity extends Activity implements RdioListener {
 		List<NameValuePair> args = new LinkedList<NameValuePair>();
 		args.add(new BasicNameValuePair("extras", "username,displayName,lastSongPlayed"));
 		rdio.apiCall("currentUser", args, new RdioApiCallback() {
+			
+			
 			@Override
 			public void onApiSuccess(JSONObject result) {
 				dismissGetUserDialog();
 				try {
 					result = result.getJSONObject("result");
-					Log.i(TAG, result.toString(2));
-					usrDataTxt.setText(result.toString(2));
-					// c<userid> is the 'collection radio source' key
-					collectionKey = result.getString("key").replace('s','c');
-
-					//LoadMoreTracks();
+					username = result.getString("username");
+					lastSong = result.getJSONObject("lastSongPlayed").getString("artistKey");
+					
+					//send data to server to check my music
+					sendMyData();
+					
 				} catch (Exception e) {
 					Log.e(TAG, "Failed to handle JSONObject: ", e);
 				}

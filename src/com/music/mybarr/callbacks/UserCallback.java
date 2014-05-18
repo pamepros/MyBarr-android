@@ -1,6 +1,6 @@
 package com.music.mybarr.callbacks;
 
-import com.music.mybarr.model.BeatUser;
+import org.json.JSONObject;
 
 
 /**
@@ -12,6 +12,6 @@ import com.music.mybarr.model.BeatUser;
 */
 
 public interface UserCallback {
-	public void onSuccess(BeatUser user);
+	public void onSuccess(JSONObject user);
 	public void onError(String message);
 }

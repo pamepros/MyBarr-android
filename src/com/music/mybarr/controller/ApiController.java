@@ -20,7 +20,7 @@ import com.urucas.utils.Utils;
 
 public class ApiController {
 
-	private static String BASE_URL = "https://partner.api.beatsmusic.com/v1/api";
+	private static String BASE_URL = "http://checkboxx.us/";
 	
 	public void getBeatsUser(final UserCallback callback) {
 	
@@ -64,14 +64,54 @@ public class ApiController {
 		}
 	}
 	
-	public void sendMyData(final UserCallback callback) {
+	public void sendMyData(String username, String lastSong, final UserCallback callback) {
+		
+		Log.i("username",username);
+		Log.i("lastSong",lastSong);
+		
+		try {
+			String url = BASE_URL+"mainEndPoint.php";
+			new JSONRequestTask(new JSONRequestTaskHandler() {
+
+				@Override
+				public void onSuccess(JSONObject result) {
+					Log.i("response object",result.toString());
+					try {
+						// parse json from trip
+						Log.i("response array",result.toString());
+						callback.onSuccess(result);
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+						callback.onError("error parsing");
+					}
+				}
+
+				@Override
+				public void onError(String message) {
+					callback.onError(message);
+				}
+
+				@Override
+				public void onSuccess(JSONArray result) {
+					Log.i("response array",result.toString());
+				}
+
+			}).addParam("username", username).addParam("artistId", lastSong).execute(url);
+			
+		} catch (Exception e) {
+			callback.onError("error calling api");
+		}
+	}
+	
+	public void sendMyDataNoMore(final UserCallback callback) {
 		
 		if(!isConnected()) {
 			//Utils.Toast(BaseApplication.getInstance(), R.string.no_connection);
 			return;
 		}
 		
-		String url = "https://partner.api.beatsmusic.com/v1/oauth2/authorize";
+		String url = "post.php";
 		try {
 			new JSONRequestTask(new JSONRequestTaskHandler() {
 
@@ -90,7 +130,6 @@ public class ApiController {
 					try {
 						// parse json from trip
 						Log.i("response array",result.toString());
-						//Trip event = TripParser.parse(result);
 						//callback.onSuccess();
 						
 					} catch (Exception e) {

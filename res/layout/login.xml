@@ -4,20 +4,53 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/rdio_gradient">
-    
-    <ImageView android:src="@drawable/logo"
-    	android:layout_width="wrap_content" android:layout_height="wrap_content"
-    	android:layout_marginLeft="5dp" android:layout_marginTop="5dp"
-    	android:layout_gravity="center" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="vertical"
+        android:background="@android:color/white" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal" >
+
+            <ImageView
+                android:layout_width="150dp"
+                android:layout_height="28dp"
+                android:layout_gravity="bottom"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/logo" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+    <TextView
+        android:id="@+id/userData"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:textSize="30dp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginTop="150dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="Check in and contribute the music you love." />
+    
     <Button
         android:id="@+id/getUsrData"
         android:layout_width="200dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="30dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="70dp"
+        android:textColor="@android:color/white"
+        android:textSize="18dp"
+        android:textStyle="bold"
         android:layout_gravity="center_horizontal"
-        android:background="@drawable/fondo_btn"
-        android:text="Log-in with Rdio" />
+        android:background="@drawable/white_border"
+        android:text="Check-in with Rdio" />
     
     <Button
         android:id="@+id/getBeatsUsrData"
@@ -28,14 +61,4 @@
         android:background="@drawable/fondo_btn"
         android:text="Log-in with BeatsMusic"
         android:visibility="gone" />
-
-    <ScrollView 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    <TextView
-        android:id="@+id/userData"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="User data here" />
-	</ScrollView>
 </LinearLayout>
