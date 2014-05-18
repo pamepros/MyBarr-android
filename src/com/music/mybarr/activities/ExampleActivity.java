@@ -20,7 +20,7 @@
  THE SOFTWARE.
  */
 
-package com.rdio.android.api.example;
+package com.music.mybarr.activities;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -38,12 +38,16 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.rdio.android.api.Rdio;
 import com.rdio.android.api.RdioApiCallback;
 import com.rdio.android.api.RdioListener;
+import com.rdio.android.api.example.R;
 import com.rdio.android.api.services.RdioAuthorisationException;
 import com.rdio.android.api.OAuth1WebViewActivity;
+import com.urucas.cleeck.fragments.CommentListFragment;
 
+import android.R.bool;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.content.Intent;
@@ -51,11 +55,15 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -98,6 +106,20 @@ public class ExampleActivity extends Activity implements RdioListener {
 
 	private TextView usrDataTxt;
 
+	private LocationManager locationManager;
+
+	private Criteria criteria;
+
+	private String provider;
+
+	private Location myLocation;
+
+	private LatLng myLatLng;
+	
+	private Location barLocation = new Location("bar");
+
+	private Handler handler;
+
 	// Our model for the metadata for a track that we care about
 	private class Track {
 		public String key;
@@ -120,6 +142,9 @@ public class ExampleActivity extends Activity implements RdioListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login);
 
+		barLocation.setLatitude(37.78255);
+		barLocation.setLongitude(-122.39091);
+		
 		trackQueue = new LinkedList<Track>();
 
 		// Initialize our Rdio object.  If we have cached access credentials, then use them - otherwise
@@ -159,10 +184,70 @@ public class ExampleActivity extends Activity implements RdioListener {
 				getUserData();
 			}
 		});
-
+		
 		usrDataTxt = (TextView)findViewById(R.id.userData);
-	}
+		
+		//check if I'm there
+		if(!amIThere()){
+			Toast toast = Toast.makeText(getApplicationContext(), "You are not in the bar, you definetly should!", Toast.LENGTH_LONG);
+			toast.show();
+		};
+		
+		//every 10 min
+		handler = new Handler();
+		handler.postDelayed( new Runnable() {
+		    @Override
+		    public void run() {
+		    	try { 
+		    		if(!amIThere()){
+		    			//tell the api that I'm not there anymore
+		    		}
+		    	}catch(Exception e){
 
+		    	}
+		    	handler.postDelayed(this, 600 * 1000 );
+		    }
+		}, 600 * 1000 );
+	};
+
+	private Boolean amIThere(){
+		try{
+			// get user location
+			locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+			criteria = new Criteria();
+	
+			// Get the name of the best provider
+			provider = locationManager.getBestProvider(criteria, true);
+	
+			// Get Current Location
+			myLocation = locationManager.getLastKnownLocation(provider);
+	
+			myLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+			Log.i("lat",String.valueOf(myLocation.getLatitude()));
+			Log.i("lon",String.valueOf(myLocation.getLongitude()));
+			
+			//distance between me and bar location
+			float d = myLocation.distanceTo(barLocation);
+			Log.i("distance",Float.toString(d));
+			if(d > 200){
+				return false;
+			}else{
+				//allow user to log in and check into bar
+				Button beatsUsrData = (Button)findViewById(R.id.getBeatsUsrData);
+				beatsUsrData.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						getBeatsUserData();
+					}
+				});
+				return true;
+			}
+		}catch(Exception e){
+			return false;
+		}
+	}
 	@Override
 	public void onDestroy() {
 		Log.i(TAG, "Cleaning up..");
@@ -180,6 +265,7 @@ public class ExampleActivity extends Activity implements RdioListener {
 		super.onDestroy();
 	}
 
+	
 	/**
 	 * Get Rdio's site-wide heavy rotation and play 30s samples.
 	 * Doesn't require auth or the Rdio app to be installed
@@ -360,6 +446,10 @@ public class ExampleActivity extends Activity implements RdioListener {
 				}
 			}
 		});
+	}
+	
+	private void getBeatsUserData() {
+		
 	}
 
 	private void LoadMoreTracks() {
