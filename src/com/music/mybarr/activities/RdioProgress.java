@@ -1,6 +1,7 @@
 package com.music.mybarr.activities;
 
-import com.rdio.android.api.example.R;
+
+import com.music.mybarr.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

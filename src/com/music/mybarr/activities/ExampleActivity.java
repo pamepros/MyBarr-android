@@ -39,13 +39,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.music.mybarr.R;
 import com.music.mybarr.callbacks.UserCallback;
 import com.music.mybarr.controller.ApiController;
 import com.music.mybarr.model.BeatUser;
 import com.rdio.android.api.Rdio;
 import com.rdio.android.api.RdioApiCallback;
 import com.rdio.android.api.RdioListener;
-import com.rdio.android.api.example.R;
 import com.rdio.android.api.services.RdioAuthorisationException;
 import com.rdio.android.api.OAuth1WebViewActivity;
 import android.app.Activity;
